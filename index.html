@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0e1726">
+
+  <title>HB | حمزة بلال — مطور ألعاب</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- مكتبة المجسمات ثلاثية الأبعاد -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+</head>
+
+<body>
+
+  <!-- مؤشر الماوس -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- شاشة الدخول -->
+  <div class="intro" id="intro">
+    <div class="intro-top">
+      <span class="intro-brand">
+        <img src="assets/logo-transparent.png" alt="HB" style="width: 26px; height: 26px; vertical-align: middle; margin-left: 8px; filter: drop-shadow(0 2px 6px rgba(168, 85, 247, 0.4));">
+        HB<span>.</span>
+      </span>
+      <span class="intro-label">عالم من صنع الخيال</span>
+    </div>
+
+    <div class="intro-center">
+      <div class="intro-logo">HB</div>
+
+      <p class="intro-kicker">حمزة بلال — مطور ألعاب</p>
+
+      <h1>
+        كل فكرة لها عالم.
+        <br>
+        <span>وكل عالم يبدأ بخطوة.</span>
+      </h1>
+
+      <button class="enter-button" id="enterButton" onclick="if(window.__hbEnterSite) window.__hbEnterSite();">
+        <span class="enter-ring"></span>
+        <span class="enter-text">اضغط باستمرار للدخول</span>
+        <span class="enter-progress"></span>
+      </button>
+
+      <p class="intro-hint">استمر بالضغط أو انقر مباشرة للدخول</p>
+    </div>
+
+    <div class="intro-bottom">
+      <span>HB — GAME DEVELOPMENT</span>
+      <span>△ ○ × □</span>
+    </div>
+
+    <div class="intro-flash" id="introFlash"></div>
+  </div>
+
+  <!-- سكربت فوري لضمان عمل زر الدخول والربط السلس بين الصفحات في كافة الظروف -->
+  <script>
+    (function() {
+      var intro = document.getElementById("intro");
+      var enterButton = document.getElementById("enterButton");
+      var introFlash = document.getElementById("introFlash");
+      var urlHash = window.location.hash;
+      var hasSectionHash = urlHash && urlHash !== "#" && urlHash !== "#home";
+      var alreadyEntered = sessionStorage.getItem("hb_site_entered") === "true";
+
+      function doEnter(instant) {
+        sessionStorage.setItem("hb_site_entered", "true");
+        document.body.classList.remove("locked");
+        if (!intro) return;
+        if (instant) {
+          intro.remove();
+        } else {
+          if (introFlash) introFlash.classList.add("flash");
+          setTimeout(function() {
+            intro.classList.add("exiting");
+          }, 180);
+          setTimeout(function() {
+            intro.remove();
+          }, 1200);
+        }
+        if (hasSectionHash) {
+          setTimeout(function() {
+            var target = document.querySelector(urlHash);
+            if (target) target.scrollIntoView({ behavior: "smooth" });
+          }, instant ? 50 : 350);
+        }
+      }
+
+      window.__hbEnterSite = function(instant) {
+        doEnter(instant);
+      };
+
+      // إذا كان الزائر عائداً من صفحة أخرى كصفحة الباجة أو طلب قسماً محدداً
+      if (hasSectionHash || alreadyEntered) {
+        doEnter(true);
+      } else {
+        document.body.classList.add("locked");
+      }
+
+      if (enterButton) {
+        enterButton.addEventListener("click", function(e) {
+          e.preventDefault();
+          doEnter(false);
+        });
+      }
+    })();
+  </script>
+
+
+  <!-- القائمة -->
+  <header class="navbar" id="navbar">
+    <a href="#home" class="brand">
+      <div class="brand-logo-wrap">
+        <img src="assets/logo-transparent.png" alt="شعار حمزة بلال" class="brand-logo-img">
+      </div>
+      <div class="brand-text">
+        <span class="brand-symbol">HB</span>
+        <span class="brand-caption">حمزة بلال</span>
+      </div>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="#home">الرئيسية</a>
+      <a href="#about">نبذة عني</a>
+      <a href="profile.html" class="nav-badge-pill">🪪 باجة التعريف</a>
+      <a href="#skills">المهارات</a>
+      <a href="#work">المشاريع</a>
+      <a href="#process">مراحل العمل</a>
+      <a href="#contact">التواصل</a>
+    </nav>
+
+    <a href="profile.html" class="nav-action">باجة المطور 🪪</a>
+  </header>
+
+
+  <main>
+
+    <!-- الواجهة الرئيسية -->
+    <section class="hero" id="home">
+
+      <!-- مكان اختياري لفيديو الخلفية -->
+      <video class="hero-video" autoplay muted loop playsinline>
+        <!-- ضع رابط فيديو الخلفية هنا -->
+        <!-- <source src="assets/hero.mp4" type="video/mp4"> -->
+      </video>
+
+      <div class="hero-overlay"></div>
+
+      <!-- المجسمات الثلاثية الأبعاد تُرسم داخل هذا العنصر -->
+      <div class="scene-wrap" id="sceneWrap">
+        <canvas id="threeCanvas"></canvas>
+      </div>
+
+      <div class="hero-content">
+        <div class="hero-tag reveal">
+          <span class="live-dot"></span>
+          تصميم الألعاب × البرمجة × الإبداع
+        </div>
+
+        <p class="hero-small reveal">أهلًا، أنا حمزة بلال</p>
+
+        <h1 class="hero-title reveal">
+          أحوّل الأفكار
+          <br>
+          إلى <span>تجارب تُعاش.</span>
+        </h1>
+
+        <p class="hero-description reveal">
+          أعمل على تطوير الألعاب وصناعة تجارب تفاعلية تجمع بين
+          التفكير الإبداعي، البرمجة والتصميم.
+          هذه مساحتي لعرض رحلتي ومشاريعي.
+        </p>
+
+        <div class="hero-buttons reveal">
+          <a class="button button-primary" href="#work">
+            شاهد مشاريعي <span>↙</span>
+          </a>
+
+          <a class="button button-outline" href="profile.html">
+            البطاقة الشخصية (باجة) 🪪
+          </a>
+        </div>
+
+        <div class="hero-bottom-info">
+          <span>01 / 04 — عالم تفاعلي</span>
+          <span class="scroll-indicator">مرّر للاستكشاف ↓</span>
+        </div>
+      </div>
+
+      <div class="hero-side-label">GAME DEVELOPER · CREATIVE THINKER</div>
+    </section>
+
+
+    <!-- نبذة عني -->
+    <section class="about section" id="about">
+      <div class="section-container">
+
+        <div class="section-label reveal">
+          <span>01</span> / نبذة عني
+        </div>
+
+        <div class="about-layout">
+          <div class="about-heading reveal">
+            <p class="eyebrow">من الفكرة إلى التجربة</p>
+            <h2>
+              لا أريد فقط أن ألعب.
+              <br>
+              أريد أن أعرف
+              <span>كيف صُنعت اللعبة.</span>
+            </h2>
+          </div>
+
+          <div class="about-copy reveal">
+            <p>
+              أنا حمزة بلال، مهتم بمجال تطوير الألعاب، وأسعى إلى
+              تطوير مهاراتي في البرمجة وتصميم التجارب التفاعلية.
+              أؤمن أن اللعبة الجيدة لا تعتمد على الشكل فقط، بل على
+              طريقة اللعب والتفاصيل التي تجعل اللاعب يستمتع بالتجربة.
+            </p>
+
+            <p>
+              أتعلم من خلال التجربة، وتنفيذ المشاريع، واكتشاف
+              الأخطاء والعمل على تحسينها. أهدف إلى بناء ألعاب
+              تعبّر عن أفكاري وتمنح اللاعبين تجارب مميزة.
+            </p>
+
+            <div class="about-badge-card">
+              <img src="assets/profile.jpg" alt="حمزة بلال" class="about-badge-img">
+              <div class="about-badge-text">
+                <span class="about-badge-role">GAME DEVELOPER</span>
+                <strong>حمزة بلال</strong>
+                <a href="profile.html" class="about-badge-link">عرض البطاقة الشخصية (باجة المطور) 🪪 ←</a>
+              </div>
+            </div>
+
+            <a href="#process" class="text-link">
+              اكتشف طريقة عملي <span>↙</span>
+            </a>
+          </div>
+        </div>
+
+        <div class="about-marquee" aria-hidden="true">
+          <div class="marquee-track">
+            <span>IDEA</span><i>✳</i>
+            <span>DESIGN</span><i>✳</i>
+            <span>DEVELOP</span><i>✳</i>
+            <span>PLAY</span><i>✳</i>
+            <span>IDEA</span><i>✳</i>
+            <span>DESIGN</span><i>✳</i>
+            <span>DEVELOP</span><i>✳</i>
+            <span>PLAY</span><i>✳</i>
+          </div>
+        </div>
+      </div>
+    </section>
+
+
+    <!-- المهارات -->
+    <section class="skills section" id="skills">
+      <div class="section-container">
+
+        <div class="section-heading reveal">
+          <div>
+            <div class="section-label"><span>02</span> / المهارات</div>
+            <h2>الأدوات التي<br><span>أبني بها أفكاري.</span></h2>
+          </div>
+
+          <p>
+            أعمل على تطوير مهاراتي التقنية والإبداعية باستمرار،
+            وأستخدم كل أداة بحسب احتياجات المشروع.
+          </p>
+        </div>
+
+        <div class="skills-grid">
+
+          <article class="skill-card reveal">
+            <span class="skill-number">01</span>
+            <div class="skill-symbol">C#</div>
+            <h3>البرمجة</h3>
+            <p>كتابة الأكواد وبناء الأنظمة والتفاعلات داخل الألعاب.</p>
+            <span class="skill-tag">PROGRAMMING</span>
+          </article>
+
+          <article class="skill-card reveal">
+            <span class="skill-number">02</span>
+            <div class="skill-symbol">U</div>
+            <h3>Unity</h3>
+            <p>إنشاء المشاريع وتجربة آليات اللعب والتفاعل.</p>
+            <span class="skill-tag">GAME ENGINE</span>
+          </article>
+
+          <article class="skill-card reveal">
+            <span class="skill-number">03</span>
+            <div class="skill-symbol">UE</div>
+            <h3>Unreal Engine</h3>
+            <p>استكشاف بناء العوالم والتجارب ثلاثية الأبعاد.</p>
+            <span class="skill-tag">REAL-TIME 3D</span>
+          </article>
+
+          <article class="skill-card reveal">
+            <span class="skill-number">04</span>
+            <div class="skill-symbol">3D</div>
+            <h3>التصميم ثلاثي الأبعاد</h3>
+            <p>التعرف على النماذج والأشكال والأصول المستخدمة في الألعاب.</p>
+            <span class="skill-tag">3D DESIGN</span>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- المشاريع -->
+    <section class="work section" id="work">
+      <div class="section-container">
+
+        <div class="section-heading reveal">
+          <div>
+            <div class="section-label"><span>03</span> / المشاريع</div>
+            <h2>أفكار خرجت<br><span>من الشاشة إلى الحياة.</span></h2>
+          </div>
+
+          <p>
+            هنا أعرض تجاربي ومشاريعي، وكيف تحولت الأفكار
+            إلى أعمال يمكن مشاهدتها أو تجربتها.
+          </p>
+        </div>
+
+
+        <div class="projects-grid">
+
+          <!-- المشروع 1: الهوية البصرية -->
+          <article class="project-card project-large reveal">
+            <div class="project-media image-media">
+              <a href="https://www.behance.net/gallery/256632665/my-personal-logo/modules/1497124591" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; height: 100%;">
+                <img
+                  src="assets/logo.png"
+                  alt="الهوية البصرية - حمزة بلال"
+                  loading="lazy"
+                >
+              </a>
+
+              <span class="media-type">01 — BRAND IDENTITY</span>
+              <a href="https://www.behance.net/gallery/256632665/my-personal-logo/modules/1497124591" target="_blank" rel="noopener noreferrer" class="project-open" title="مشاهدة على Behance" aria-label="مشاهدة على Behance">↗</a>
+            </div>
+
+            <div class="project-info">
+              <div>
+                <span class="project-category">تصميم وهوية</span>
+                <h3>الهوية البصرية</h3>
+              </div>
+              <p>مشروع تصميم الشعار والهوية البصرية الشخصية المستوحاة من شغف الألعاب وعوالمها التفاعلية.</p>
+              <a href="https://www.behance.net/gallery/256632665/my-personal-logo/modules/1497124591" target="_blank" rel="noopener noreferrer" class="text-link">
+                مشاهدة المشروع على Behance <span>↗</span>
+              </a>
+            </div>
+          </article>
+
+
+          <!-- المشروع 2: البورتفوليو -->
+          <article class="project-card reveal">
+            <div class="project-media image-media">
+              <a href="https://www.behance.net/gallery/257779399/hamza-belal" target="_blank" rel="noopener noreferrer" style="display: block; width: 100%; height: 100%;">
+                <img
+                  src="assets/profile.jpg"
+                  alt="البورتفوليو - حمزة بلال"
+                  loading="lazy"
+                >
+              </a>
+
+              <span class="media-type">02 — PORTFOLIO</span>
+              <a href="https://www.behance.net/gallery/257779399/hamza-belal" target="_blank" rel="noopener noreferrer" class="project-open" title="مشاهدة على Behance" aria-label="مشاهدة على Behance">↗</a>
+            </div>
+
+            <div class="project-info">
+              <div>
+                <span class="project-category">ملف الأعمال</span>
+                <h3>البورتفوليو</h3>
+              </div>
+              <p>استعراض شامل لملف الأعمال والمشاريع السابقة وتجارب التصميم والتطوير.</p>
+              <a href="https://www.behance.net/gallery/257779399/hamza-belal" target="_blank" rel="noopener noreferrer" class="text-link">
+                مشاهدة على Behance <span>↗</span>
+              </a>
+            </div>
+          </article>
+
+
+          <!-- المشروع 3: فيديو -->
+          <article class="project-card reveal">
+            <div class="project-media video-media">
+              <iframe
+                src="https://www.youtube.com/embed/fEfAcKBpVa4"
+                title="فيديو تعريفي - يوتيوب"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin"
+                allowfullscreen>
+              </iframe>
+
+              <span class="media-type">03 — INTRO VIDEO</span>
+            </div>
+
+            <div class="project-info">
+              <div>
+                <span class="project-category">نبذة وتجربة</span>
+                <h3>فيديو تعريفي (بودكاست)</h3>
+              </div>
+              <p>مقطع فيديو تعريفي يستعرض لمحة عن أسلوب العمل وتطوير المشاريع.</p>
+              <a href="https://youtube.com/shorts/fEfAcKBpVa4" target="_blank" rel="noopener noreferrer" class="text-link">
+                مشاهدة على يوتيوب <span>↗</span>
+              </a>
+            </div>
+          </article>
+
+
+          <!-- المشروع 4: لعبة تعمل داخل الصفحة -->
+          <article class="project-card project-large reveal">
+            <div class="game-embed">
+              <!--
+                ضع رابط لعبة HTML5 منشورة هنا.
+                يجب أن تسمح اللعبة بالعرض داخل iframe.
+              -->
+              <div class="game-placeholder">
+                <div class="game-placeholder-symbol">△ ○ × □</div>
+                <h3>تجربة اللعبة مباشرة</h3>
+                <p>ضع رابط لعبتك المنشورة لتظهر هنا.</p>
+
+                <!-- استبدل الرابط برابط اللعبة -->
+                <a
+                  href="https://itch.io/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="button button-primary"
+                >
+                  افتح اللعبة ↗
+                </a>
+              </div>
+            </div>
+
+            <div class="project-info">
+              <div>
+                <span class="project-category">لعبة تفاعلية</span>
+                <h3>جرّب المشروع بنفسك</h3>
+              </div>
+              <p>يمكنك عرض لعبة HTML5 داخل الموقع إذا كانت منصة النشر تسمح بذلك.</p>
+            </div>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- مراحل العمل -->
+    <section class="process section" id="process">
+      <div class="section-container">
+
+        <div class="section-label reveal"><span>04</span> / مراحل العمل</div>
+
+        <div class="process-title reveal">
+          <h2>كل مشروع له<br><span>رحلة خاصة.</span></h2>
+          <p>أقسم العمل إلى مراحل واضحة حتى أستطيع اختبار الأفكار وتحسينها.</p>
+        </div>
+
+        <div class="process-list">
+
+          <article class="process-row reveal">
+            <span class="process-index">01</span>
+            <h3>البحث والتخطيط</h3>
+            <p>فهم الفكرة وتحديد الهدف والأدوات المناسبة.</p>
+            <span class="process-icon">↙</span>
+          </article>
+
+          <article class="process-row reveal">
+            <span class="process-index">02</span>
+            <h3>التصميم والتنفيذ</h3>
+            <p>تحويل الفكرة إلى نموذج أولي يمكن تجربته.</p>
+            <span class="process-icon">✳</span>
+          </article>
+
+          <article class="process-row reveal">
+            <span class="process-index">03</span>
+            <h3>التجربة والاختبار</h3>
+            <p>اكتشاف الأخطاء ومراجعة طريقة عمل المشروع.</p>
+            <span class="process-icon">⌕</span>
+          </article>
+
+          <article class="process-row reveal">
+            <span class="process-index">04</span>
+            <h3>التحسين والتطوير</h3>
+            <p>تعديل التفاصيل وتطوير النتيجة النهائية.</p>
+            <span class="process-icon">↗</span>
+          </article>
+
+        </div>
+      </div>
+    </section>
+
+
+    <!-- الهوية البصرية -->
+    <section class="identity section" id="identity">
+      <div class="section-container identity-layout">
+
+        <div class="identity-art reveal">
+          <div class="identity-hb">HB</div>
+          <div class="identity-symbols">
+            <span>△</span>
+            <span>○</span>
+            <span>×</span>
+            <span>□</span>
+          </div>
+        </div>
+
+        <div class="identity-copy reveal">
+          <div class="section-label"><span>05</span> / الهوية البصرية</div>
+          <h2>هويتي.<br><span>طريقتي في التعبير.</span></h2>
+
+          <p>
+            تعتمد هويتي البصرية على الحرفين H وB، مع رموز مستوحاة
+            من أزرار الألعاب. استخدمت هذه العناصر للتعبير عن اهتمامي
+            بتطوير الألعاب، مع ألوان تعكس الطابع التقني والإبداعي.
+          </p>
+
+          <div class="palette">
+            <div class="palette-item">
+              <span class="palette-color" style="background:#434671"></span>
+              <span>الأزرق الأساسي</span>
+              <code>#434671</code>
+            </div>
+
+            <div class="palette-item">
+              <span class="palette-color" style="background:#0e1726"></span>
+              <span>الكحلي الداكن</span>
+              <code>#0E1726</code>
+            </div>
+          </div>
+
+          <a href="https://www.behance.net/gallery/256632665/my-personal-logo/modules/1497124591" target="_blank" rel="noopener noreferrer" class="text-link" style="margin-top: 24px;">
+            استكشف تفاصيل الهوية الكاملة على Behance <span>↗</span>
+          </a>
+        </div>
+
+      </div>
+    </section>
+
+
+    <!-- التواصل -->
+    <section class="contact section" id="contact">
+      <div class="section-container contact-inner reveal">
+        <p class="eyebrow">وصلنا إلى نهاية الجولة</p>
+
+        <h2>
+          خلينا نصنع
+          <br>
+          <span>شيئًا يستحق اللعب.</span>
+        </h2>
+
+        <p>
+          إذا عندك فكرة أو فرصة تعاون أو حاب تتعرف على أعمالي،
+          تقدر تتواصل معي من خلال الروابط التالية.
+        </p>
+
+        <div class="contact-actions">
+          <!-- غيّر رابط البريد -->
+          <a href="mailto:your-email@example.com" class="button button-primary">
+            راسلني عبر البريد ↗
+          </a>
+
+          <!-- غيّر الرابط إلى حسابك -->
+          <a href="https://www.linkedin.com/" target="_blank" rel="noopener noreferrer" class="button button-outline">
+            LinkedIn ↗
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+
+  <footer class="footer">
+    <div class="section-container footer-inner">
+      <div style="display: inline-flex; align-items: center; gap: 8px;">
+        <img src="assets/logo-transparent.png" alt="HB" style="width: 22px; height: 22px; object-fit: contain;">
+        <span>HB — حمزة بلال</span>
+      </div>
+      <span>صُمم بشغف للألعاب والتجارب التفاعلية</span>
+      <a href="#home">العودة للأعلى ↑</a>
+    </div>
+  </footer>
+
+
+  <!-- JavaScript + 3D -->
+  <script src="script.js"></script>
+</body>
+</html>

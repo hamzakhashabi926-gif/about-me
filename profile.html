@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0e1726">
+
+  <title>البطاقة الشخصية (باجة المطور) | حمزة بلال</title>
+
+  <link rel="stylesheet" href="style.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&family=Orbitron:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    /* أنماط مخصصة لصفحة البطاقة الشخصية (الباجة) */
+    .profile-hero {
+      position: relative;
+      padding: 140px 24px 80px;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: 
+        radial-gradient(circle at 50% 20%, rgba(108, 60, 233, 0.18), transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(14, 23, 38, 0.95), transparent 60%),
+        var(--navy);
+      overflow: hidden;
+    }
+
+    .profile-hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: 
+        linear-gradient(rgba(240, 239, 247, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(240, 239, 247, 0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+      opacity: 0.7;
+    }
+
+    .badge-wrapper {
+      position: relative;
+      perspective: 1200px;
+      margin: 20px auto 40px;
+      z-index: 10;
+    }
+
+    /* شريط تعليق الباجة وحامل البطاقة */
+    .lanyard-strap {
+      width: 32px;
+      height: 70px;
+      background: repeating-linear-gradient(
+        45deg,
+        #4c1d95,
+        #4c1d95 10px,
+        #6d28d9 10px,
+        #6d28d9 20px
+      );
+      margin: 0 auto -10px;
+      border-radius: 4px 4px 0 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+      position: relative;
+      z-index: 2;
+    }
+
+    .lanyard-clip {
+      width: 48px;
+      height: 24px;
+      background: linear-gradient(180deg, #94a3b8, #475569, #cbd5e1);
+      margin: 0 auto;
+      border-radius: 6px;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.6);
+      position: relative;
+      z-index: 3;
+      border: 1px solid rgba(255,255,255,0.4);
+    }
+
+    .lanyard-clip::after {
+      content: "";
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 14px;
+      height: 14px;
+      border: 3px solid #94a3b8;
+      border-radius: 50%;
+    }
+
+    /* كرت الباجة التفاعلي */
+    .id-badge {
+      position: relative;
+      width: 380px;
+      max-width: 92vw;
+      background: linear-gradient(145deg, rgba(23, 29, 45, 0.95), rgba(12, 17, 30, 0.98));
+      border: 1.5px solid rgba(168, 85, 247, 0.45);
+      border-radius: 24px;
+      padding: 28px 24px 24px;
+      box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.8),
+        0 0 35px rgba(124, 58, 237, 0.25),
+        inset 0 1px 1px rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(20px);
+      transform-style: preserve-3d;
+      transition: transform 0.15s ease-out, box-shadow 0.3s ease;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .id-badge:active {
+      cursor: grabbing;
+    }
+
+    /* لمعان الهولوجرام المضيء */
+    .badge-hologram {
+      position: absolute;
+      inset: 0;
+      border-radius: 24px;
+      background: linear-gradient(
+        115deg,
+        transparent 20%,
+        rgba(168, 85, 247, 0.15) 35%,
+        rgba(56, 189, 248, 0.2) 45%,
+        rgba(236, 72, 153, 0.15) 55%,
+        transparent 70%
+      );
+      pointer-events: none;
+      opacity: 0.6;
+      mix-blend-mode: color-dodge;
+      transition: opacity 0.3s ease;
+    }
+
+    /* فتحة التعليق في أعلى الكرت */
+    .badge-slot {
+      width: 60px;
+      height: 12px;
+      background: #080c14;
+      border: 1.5px solid rgba(255, 255, 255, 0.15);
+      border-radius: 20px;
+      margin: 0 auto 20px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.8);
+    }
+
+    /* رأس الباجة */
+    .badge-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+
+    .badge-logo-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .badge-logo-img {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.06);
+      padding: 3px;
+      border: 1px solid rgba(168, 85, 247, 0.4);
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+    }
+
+    .badge-pass-tag {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: #c084fc;
+      background: rgba(147, 51, 234, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+
+    .badge-serial {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: #94a3b8;
+      letter-spacing: 1px;
+    }
+
+    /* إطار الصورة الشخصية */
+    .badge-avatar-wrap {
+      position: relative;
+      width: 150px;
+      height: 150px;
+      margin: 0 auto 18px;
+    }
+
+    .badge-avatar-glow {
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, #7c3aed, #06b6d4, #ec4899, #7c3aed);
+      animation: rotateGlow 8s linear infinite;
+      filter: blur(4px);
+      opacity: 0.7;
+    }
+
+    @keyframes rotateGlow {
+      100% { transform: rotate(360deg); }
+    }
+
+    .badge-avatar {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid #0e1726;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      background: #111827;
+      z-index: 1;
+    }
+
+    .badge-status-dot {
+      position: absolute;
+      bottom: 6px;
+      right: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(14, 23, 38, 0.9);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      padding: 3px 8px;
+      border-radius: 20px;
+      font-size: 10px;
+      color: #4ade80;
+      font-weight: 600;
+      z-index: 2;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .badge-status-dot::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
+      animation: pulseGreen 2s infinite;
+    }
+
+    @keyframes pulseGreen {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.85); }
+    }
+
+    /* بيانات الاسم والمسمى */
+    .badge-name-block {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .badge-name {
+      font-size: 24px;
+      font-weight: 800;
+      color: #ffffff;
+      margin-bottom: 4px;
+      letter-spacing: -0.5px;
+    }
+
+    .badge-name-en {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 12px;
+      color: #a855f7;
+      letter-spacing: 2px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .badge-role-tag {
+      display: inline-block;
+      font-size: 12px;
+      font-weight: 600;
+      color: #e2e8f0;
+      background: rgba(255, 255, 255, 0.07);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      padding: 5px 14px;
+      border-radius: 12px;
+    }
+
+    /* تفاصيل وشريحة البيانات */
+    .badge-specs-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      background: rgba(14, 23, 38, 0.6);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 14px;
+      padding: 12px;
+      margin-bottom: 18px;
+      font-size: 11px;
+    }
+
+    .spec-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .spec-label {
+      color: #94a3b8;
+      font-size: 10px;
+    }
+
+    .spec-value {
+      color: #f1f5f9;
+      font-weight: 600;
+      font-family: 'Orbitron', sans-serif, "IBM Plex Sans Arabic";
+    }
+
+    /* تذييل الباجة: الباركود وشريحة الأمان */
+    .badge-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      padding-top: 14px;
+    }
+
+    .badge-chip {
+      width: 34px;
+      height: 26px;
+      background: linear-gradient(135deg, #d4af37, #f3e5ab, #aa7c11);
+      border-radius: 5px;
+      position: relative;
+      border: 1px solid #785800;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.5);
+    }
+
+    .badge-chip::before {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: rgba(0,0,0,0.4);
+    }
+
+    .badge-chip::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 1px;
+      background: rgba(0,0,0,0.4);
+    }
+
+    .badge-barcode {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 3px;
+    }
+
+    .barcode-lines {
+      height: 22px;
+      width: 120px;
+      background: repeating-linear-gradient(
+        90deg,
+        #fff,
+        #fff 2px,
+        transparent 2px,
+        transparent 4px,
+        #fff 4px,
+        #fff 7px,
+        transparent 7px,
+        transparent 9px,
+        #fff 9px,
+        #fff 10px
+      );
+      opacity: 0.8;
+    }
+
+    .barcode-text {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 8px;
+      letter-spacing: 2px;
+      color: #94a3b8;
+    }
+
+    /* أزرار التحكم بالباجة */
+    .badge-actions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+      margin-top: 10px;
+      z-index: 10;
+    }
+
+    .badge-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #f1f5f9;
+      padding: 10px 18px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      backdrop-filter: blur(10px);
+    }
+
+    .badge-btn:hover {
+      background: rgba(168, 85, 247, 0.2);
+      border-color: rgba(168, 85, 247, 0.5);
+      color: #ffffff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 15px rgba(168, 85, 247, 0.25);
+    }
+
+    .badge-btn.primary {
+      background: linear-gradient(135deg, #7c3aed, #4c1d95);
+      border-color: #8b5cf6;
+      box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+    }
+
+    .badge-btn.primary:hover {
+      background: linear-gradient(135deg, #8b5cf6, #6d28d9);
+      box-shadow: 0 6px 20px rgba(124, 58, 237, 0.6);
+    }
+
+    /* أقسام المعلومات الشخصية أسفل الباجة */
+    .profile-content {
+      padding: 80px 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .info-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-bottom: 40px;
+    }
+
+    .info-card {
+      background: rgba(23, 29, 45, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 20px;
+      padding: 28px;
+      backdrop-filter: blur(14px);
+      transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .info-card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(168, 85, 247, 0.4);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3), 0 0 20px rgba(168, 85, 247, 0.15);
+    }
+
+    .info-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(147, 51, 234, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      margin-bottom: 18px;
+      color: #c084fc;
+    }
+
+    .info-card h3 {
+      font-size: 19px;
+      font-weight: 700;
+      color: #ffffff;
+      margin-bottom: 12px;
+    }
+
+    .info-card p {
+      font-size: 14px;
+      line-height: 1.8;
+      color: #94a3b8;
+    }
+
+    /* شريط المهارات مع النسب */
+    .skills-bars {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      margin-top: 15px;
+    }
+
+    .skill-bar-item {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .skill-bar-info {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 500;
+      color: #e2e8f0;
+    }
+
+    .skill-bar-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.07);
+      border-radius: 10px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .skill-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #7c3aed, #06b6d4);
+      border-radius: 10px;
+      transition: width 1s ease-in-out;
+    }
+
+    /* رسالة التوست عند نسخ الرابط */
+    .toast-msg {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #10b981;
+      color: #ffffff;
+      padding: 12px 24px;
+      border-radius: 30px;
+      font-size: 14px;
+      font-weight: 600;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+      opacity: 0;
+      pointer-events: none;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast-msg.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    @media (max-width: 480px) {
+      .id-badge {
+        width: 100%;
+        padding: 20px 16px;
+      }
+      .badge-name {
+        font-size: 20px;
+      }
+      .badge-avatar-wrap {
+        width: 120px;
+        height: 120px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- مؤشر الماوس -->
+  <div class="cursor-glow" id="cursorGlow"></div>
+
+  <!-- القائمة العلوية مع الشعار في الزاوية -->
+  <header class="navbar" id="navbar">
+    <a href="index.html" class="brand">
+      <div class="brand-logo-wrap">
+        <img src="assets/logo-transparent.png" alt="شعار حمزة بلال" class="brand-logo-img">
+      </div>
+      <div class="brand-text">
+        <span class="brand-symbol">HB</span>
+        <span class="brand-caption">حمزة بلال</span>
+      </div>
+    </a>
+
+    <button class="menu-toggle" id="menuToggle" aria-label="فتح القائمة">
+      <span></span>
+      <span></span>
+    </button>
+
+    <nav class="nav-links" id="navLinks">
+      <a href="index.html#home">الرئيسية</a>
+      <a href="index.html#about">نبذة عني</a>
+      <a href="profile.html" class="nav-badge-pill">🪪 باجة التعريف</a>
+      <a href="index.html#skills">المهارات</a>
+      <a href="index.html#work">المشاريع</a>
+      <a href="index.html#process">مراحل العمل</a>
+      <a href="index.html#contact">التواصل</a>
+    </nav>
+
+    <a href="index.html" class="nav-action">العودة للرئيسية ↗</a>
+  </header>
+
+
+  <main>
+    <!-- قسم الباجة الرئيسية التفاعلية -->
+    <section class="profile-hero">
+      
+      <div class="section-label" style="margin-bottom: 10px;">
+        <span>IDENTITY</span> / البطاقة المهنية للمطور
+      </div>
+
+      <h1 style="font-size: clamp(24px, 4vw, 36px); font-weight: 800; text-align: center; margin-bottom: 25px;">
+        باجة المطور <span style="color: #a855f7;">حمزة بلال</span>
+      </h1>
+
+      <div class="badge-wrapper" id="badgeWrapper">
+        
+        <!-- حزام التعليق والمشبك المعدني -->
+        <div class="lanyard-strap"></div>
+        <div class="lanyard-clip"></div>
+
+        <!-- كرت الباجة التفاعلي 3D -->
+        <div class="id-badge" id="idBadge">
+          
+          <div class="badge-hologram" id="badgeHologram"></div>
+          
+          <!-- فتحة الحزام -->
+          <div class="badge-slot"></div>
+
+          <!-- رأس الباجة -->
+          <div class="badge-header">
+            <div class="badge-logo-box">
+              <img src="assets/logo-transparent.png" alt="شعار HB" class="badge-logo-img">
+              <div>
+                <span class="badge-pass-tag">DEV PASS</span>
+              </div>
+            </div>
+            <div class="badge-serial">ID #HB-9942</div>
+          </div>
+
+          <!-- الصورة الشخصية للمطور -->
+          <div class="badge-avatar-wrap">
+            <div class="badge-avatar-glow"></div>
+            <img src="assets/profile.jpg" alt="صورة حمزة بلال الشخصية" class="badge-avatar">
+            <div class="badge-status-dot">نشط الآن</div>
+          </div>
+
+          <!-- الاسم والمسمى الوظيفي -->
+          <div class="badge-name-block">
+            <h2 class="badge-name">حمزة بلال</h2>
+            <div class="badge-name-en">HAMZA BILAL</div>
+            <span class="badge-role-tag">🎮 مطور ألعاب وتجارب تفاعلية</span>
+          </div>
+
+          <!-- تفاصيل ومواصفات الباجة -->
+          <div class="badge-specs-grid">
+            <div class="spec-item">
+              <span class="spec-label">التصنيف الأساسي</span>
+              <span class="spec-value">GAME PROGRAMMER</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">المحرك المفضل</span>
+              <span class="spec-value">UNITY & UNREAL</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">لغة البرمجة</span>
+              <span class="spec-value">C# / C++</span>
+            </div>
+            <div class="spec-item">
+              <span class="spec-label">المستوى</span>
+              <span class="spec-value">LEVEL 99 CREATOR</span>
+            </div>
+          </div>
+
+          <!-- أسفل الباجة: الشريحة الذكية والباركود -->
+          <div class="badge-bottom">
+            <div class="badge-chip" title="Verified Creator Chip"></div>
+            <div class="badge-barcode">
+              <div class="barcode-lines"></div>
+              <div class="barcode-text">HB-2026-DEVELOPER</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- أزرار تفاعلية أسفل الباجة -->
+      <div class="badge-actions">
+        <button class="badge-btn primary" onclick="window.print()">
+          <span>🖨️</span> طباعة / حفظ الباجة
+        </button>
+        <button class="badge-btn" id="copyBadgeBtn">
+          <span>🔗</span> نسخ رابط الملف
+        </button>
+        <a href="index.html#contact" class="badge-btn">
+          <span>✉️</span> تواصل معي
+        </a>
+      </div>
+
+    </section>
+
+
+    <!-- تفاصيل ومعلومات السيرة الذاتية -->
+    <section class="profile-content">
+      
+      <div class="info-cards-grid">
+        
+        <!-- بطاقة من أنا -->
+        <article class="info-card">
+          <div class="info-card-icon">🚀</div>
+          <h3>من أنا ورؤيتي</h3>
+          <p>
+            أنا حمزة بلال، صانع ومطور ألعاب مدفوع بالشغف لبناء تجارب تفاعلية عميقة تأسر اللاعبين.
+            أرى الألعاب كفن متكامل يدمج بين السرد القصصي، الرياضيات، البرمجة الرصينة، والجماليات البصرية.
+            هدفي هو ابتكار عوالم تترك أثراً دائماً وتمنح تجربة لعب لا تُنسى.
+          </p>
+        </article>
+
+        <!-- بطاقة المهارات والترسانة التقنية -->
+        <article class="info-card">
+          <div class="info-card-icon">⚡</div>
+          <h3>القدرات التقنية</h3>
+          
+          <div class="skills-bars">
+            <div class="skill-bar-item">
+              <div class="skill-bar-info">
+                <span>برمجة الألعاب (C# / Logic)</span>
+                <span>90%</span>
+              </div>
+              <div class="skill-bar-track">
+                <div class="skill-bar-fill" style="width: 90%;"></div>
+              </div>
+            </div>
+
+            <div class="skill-bar-item">
+              <div class="skill-bar-info">
+                <span>محرك Unity (2D & 3D)</span>
+                <span>85%</span>
+              </div>
+              <div class="skill-bar-track">
+                <div class="skill-bar-fill" style="width: 85%;"></div>
+              </div>
+            </div>
+
+            <div class="skill-bar-item">
+              <div class="skill-bar-info">
+                <span>محرك Unreal Engine & 3D</span>
+                <span>75%</span>
+              </div>
+              <div class="skill-bar-track">
+                <div class="skill-bar-fill" style="width: 75%;"></div>
+              </div>
+            </div>
+
+            <div class="skill-bar-item">
+              <div class="skill-bar-info">
+                <span>تصميم المراحل والميكانيكس</span>
+                <span>80%</span>
+              </div>
+              <div class="skill-bar-track">
+                <div class="skill-bar-fill" style="width: 80%;"></div>
+              </div>
+            </div>
+          </div>
+        </article>
+
+        <!-- بطاقة أسلوب العمل والتطوير -->
+        <article class="info-card">
+          <div class="info-card-icon">🎯</div>
+          <h3>فلسفة التطوير</h3>
+          <p>
+            <strong>1. النموذج الأولي السريع:</strong> اختبار متعة اللعب (Core Gameplay Loop) قبل أي تفاصيل أخرى.<br>
+            <strong>2. كود نظيف وقابل للتوسع:</strong> بناء أنظمة ألعاب متينة خالية من الأخطاء ومحسنة للأداء.<br>
+            <strong>3. تجربة المستخدم التفاعلية:</strong> اهتمام دقيق بإحساس التحكم (Game Feel) والمؤثرات الصوتية والبصرية.
+          </p>
+        </article>
+
+        <!-- بطاقة معلومات التواصل المباشر -->
+        <article class="info-card">
+          <div class="info-card-icon">💬</div>
+          <h3>التعاون والمشاريع</h3>
+          <p>
+            متاح دائماً للتعاون في مشاريع ألعاب طموحة، الألعاب المستقلة (Indie Games)، والحلول التفاعلية ثلاثية الأبعاد.
+          </p>
+          <div style="margin-top: 18px;">
+            <a href="index.html#contact" class="badge-btn primary" style="width: 100%; justify-content: center;">
+              ابدأ محادثة معي ↗
+            </a>
+          </div>
+        </article>
+
+      </div>
+
+    </section>
+  </main>
+
+
+  <!-- رسالة نسخ الرابط -->
+  <div class="toast-msg" id="toastMsg">✓ تم نسخ رابط البطاقة الشخصية بنجاح!</div>
+
+
+  <!-- تذييل الصفحة -->
+  <footer style="border-top: 1px solid var(--line); padding: 40px 24px; text-align: center; color: var(--muted); font-size: 13px;">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 14px;">
+      <img src="assets/logo-transparent.png" alt="HB" style="width: 28px; height: 28px; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));">
+      <span style="font-family: Orbitron; font-weight: 700; color: #fff;">HB — HAMZA BILAL</span>
+    </div>
+    <p>© جميع الحقوق محفوظة — حمزة بلال</p>
+  </footer>
+
+
+  <script>
+    // تفاعل حركة الباجة ثلاثية الأبعاد مع حركة الماوس (3D Parallax Tilt Effect)
+    const card = document.getElementById('idBadge');
+    const wrapper = document.getElementById('badgeWrapper');
+    const hologram = document.getElementById('badgeHologram');
+
+    if (card && wrapper) {
+      wrapper.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        
+        const rotateX = ((y - centerY) / centerY) * -14;
+        const rotateY = ((x - centerX) / centerX) * 14;
+        
+        card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.03, 1.03, 1.03)`;
+        
+        if (hologram) {
+          const moveX = (x / rect.width) * 100;
+          const moveY = (y / rect.height) * 100;
+          hologram.style.background = `radial-gradient(circle at ${moveX}% ${moveY}%, rgba(255,255,255,0.25) 0%, rgba(168,85,247,0.2) 30%, rgba(56,189,248,0.15) 60%, transparent 80%)`;
+          hologram.style.opacity = '1';
+        }
+      });
+
+      wrapper.addEventListener('mouseleave', () => {
+        card.style.transform = 'rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+        if (hologram) {
+          hologram.style.opacity = '0.5';
+        }
+      });
+    }
+
+    // زر نسخ الرابط
+    const copyBtn = document.getElementById('copyBadgeBtn');
+    const toast = document.getElementById('toastMsg');
+
+    if (copyBtn && toast) {
+      copyBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(window.location.href).then(() => {
+          toast.classList.add('show');
+          setTimeout(() => {
+            toast.classList.remove('show');
+          }, 3000);
+        });
+      });
+    }
+
+    // القائمة للموبايل
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    if (menuToggle && navLinks) {
+      menuToggle.addEventListener('click', () => {
+        navLinks.classList.toggle('open');
+        navLinks.classList.toggle('active');
+        menuToggle.classList.toggle('active');
+      });
+
+      // إغلاق القائمة عند النقر على أي رابط
+      navLinks.querySelectorAll('a').forEach((link) => {
+        link.addEventListener('click', () => {
+          navLinks.classList.remove('open');
+          navLinks.classList.remove('active');
+          menuToggle.classList.remove('active');
+        });
+      });
+    }
+
+    // تسجيل حالة الدخول عند الرجوع إلى الرئيسية حتى لا تظهر شاشة الدخول مجدداً
+    document.querySelectorAll('a[href^="index.html"]').forEach((link) => {
+      link.addEventListener('click', () => {
+        sessionStorage.setItem('hb_site_entered', 'true');
+      });
+    });
+  </script>
+
+</body>
+</html>
